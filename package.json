@@ -1,0 +1,37 @@
+{
+  "name": "kinesis-events",
+  "version": "1.0.0",
+  "description": "AWS Kinesis event parser and handler for Lambda consumers",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KyleRoss/kinesis-events.git"
+  },
+  "keywords": [
+    "kinesis",
+    "aws",
+    "event",
+    "events",
+    "parser",
+    "parse",
+    "handler",
+    "iterator",
+    "loop",
+    "json",
+    "error",
+    "async",
+    "json"
+  ],
+  "author": "Kyle Ross <thejavascriptguy@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/KyleRoss/kinesis-events/issues"
+  },
+  "homepage": "https://github.com/KyleRoss/kinesis-events#readme",
+  "dependencies": {
+    "async-each": "^1.0.1"
+  }
+}
