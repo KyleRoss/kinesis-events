@@ -4,14 +4,6 @@ const each = require('async-each');
 
 class KinesisEvents extends EventEmitter {
     /**
-     * Access to the uninstantiated KinesisEvents class
-     * @static
-     */
-    static get KinesisEvents() {
-        return KinesisEvents;
-    }
-    
-    /**
      * Constructor for KinesisEvents
      * @return {KinesisEvents} Instance of KinesisEvents
      */
@@ -22,6 +14,11 @@ class KinesisEvents extends EventEmitter {
          * @type {Number}
          */
         this.failed = 0;
+        /**
+         * Access to the uninstantiated KinesisEvents class
+         * @type {Class}
+         */
+        this.KinesisEvents = KinesisEvents;
     }
     
     /**
@@ -49,15 +46,20 @@ class KinesisEvents extends EventEmitter {
      */
     parseAsync(records, iterator, callback, json = true) {
         each(records, (record, cb) => {
-            let rec = this._decode(record.kinesis.data);
-            if(rec._isError) return cb(rec);
+            let innerCb = (err, result) => {
+                if(err) err = this._error(err, 'Error while iterating records', result || record);
+                return cb(err, result || record);
+            };
             
-            if(!json || !rec) return iterator(rec, cb);
+            let rec = this._decode(record.kinesis.data);
+            if(rec._isError) return innerCb(rec);
+            
+            if(!json || !rec) return iterator(rec, innerCb);
             
             let jsonData = this._toJSON(rec);
-            if(jsonData._isError) return cb(rec);
+            if(jsonData._isError) return innerCb(rec);
             
-            iterator(jsonData, cb);
+            iterator(jsonData, innerCb);
         }, callback);
     }
     
