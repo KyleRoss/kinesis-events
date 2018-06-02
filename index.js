@@ -56,8 +56,7 @@ class KinesisEvents extends EventEmitter {
      */
     _decode(data) {
         try {
-            let decoded = new Buffer(data, 'base64').toString('utf8');
-            return decoded;
+            return new Buffer(data, 'base64').toString('utf8');
         } catch(e) {
             return this._error(e, 'Unable to decode event data', data);
         }
@@ -72,9 +71,6 @@ class KinesisEvents extends EventEmitter {
      */
     _error(error, msg, data) {
         msg = msg || 'Error parsing kinesis event';
-        
-        if(!error || typeof error === 'string')
-            error = new Error(error || msg);
         
         error.message = `${msg} (${error.message})`;
         error.payload = data;
