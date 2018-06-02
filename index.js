@@ -8,16 +8,6 @@ class KinesisEvents extends EventEmitter {
      */
     constructor() {
         super();
-        /**
-         * The number of failed parsed records
-         * @type {Number}
-         */
-        this.failed = 0;
-        /**
-         * Access to the uninstantiated KinesisEvents class
-         * @type {Class}
-         */
-        this.KinesisEvents = KinesisEvents;
     }
     
     /**
@@ -83,7 +73,6 @@ class KinesisEvents extends EventEmitter {
         error.payload = data;
         error._isError = true;
         
-        this.failed += 1;
         this.emit('error', error);
         
         return error;
