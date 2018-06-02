@@ -1,5 +1,6 @@
 "use strict";
 const EventEmitter = require('events');
+const parseJson = require('json-parse-better-errors');
 
 class KinesisEvents extends EventEmitter {
     /**
@@ -35,8 +36,7 @@ class KinesisEvents extends EventEmitter {
      */
     _toJSON(data) {
         try {
-            let json = JSON.parse(data);
-            return json;
+            return parseJson(data);
         } catch(e) {
             return this._error(e, 'Unable to JSON parse event data', data);
         }
