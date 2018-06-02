@@ -4,7 +4,7 @@
   "description": "AWS Kinesis event parser and handler for Lambda consumers",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/mocha"
   },
   "repository": {
     "type": "git",
@@ -33,5 +33,8 @@
   "homepage": "https://github.com/KyleRoss/kinesis-events#readme",
   "dependencies": {
     "async-each": "^1.0.1"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0"
   }
 }
