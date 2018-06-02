@@ -11,7 +11,6 @@ npm install kinesis-events --save
 ```
 
 ## Usage
-### Synchronous API
 ```js
 const kinesisEvents = require('kinesis-events');
 
