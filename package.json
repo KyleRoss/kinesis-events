@@ -1,6 +1,6 @@
 {
   "name": "kinesis-events",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "AWS Kinesis event parser and handler for Lambda consumers",
   "main": "index.js",
   "scripts": {
@@ -18,11 +18,6 @@
     "parser",
     "parse",
     "handler",
-    "iterator",
-    "loop",
-    "json",
-    "error",
-    "async",
     "json"
   ],
   "author": "Kyle Ross <thejavascriptguy@gmail.com>",
