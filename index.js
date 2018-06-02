@@ -73,7 +73,7 @@ class KinesisEvents extends EventEmitter {
         error.payload = data;
         error._isError = true;
         
-        this.emit('error', error);
+        this.emit('parseError', error);
         
         return error;
     }
