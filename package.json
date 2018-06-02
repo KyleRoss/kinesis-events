@@ -32,7 +32,6 @@
   },
   "homepage": "https://github.com/KyleRoss/kinesis-events#readme",
   "dependencies": {
-    "async-each": "^1.0.1"
   },
   "devDependencies": {
     "mocha": "^5.2.0"
