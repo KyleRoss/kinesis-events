@@ -1,6 +1,5 @@
 "use strict";
 const EventEmitter = require('events');
-const each = require('async-each');
 
 class KinesisEvents extends EventEmitter {
     /**
@@ -37,30 +36,6 @@ class KinesisEvents extends EventEmitter {
         }).filter(rec => !!rec || !rec._isError);
     }
     
-    /**
-     * Async version of `parse()`
-     * @param  {Array}   records  Event data (records) to parse
-     * @param  {Function}   iterator Iterator function to call for each record
-     * @param  {Function} callback Callback function to call once complete
-     * @param  {Boolean}  json     Enable/disable JSON parsing for each event (default `true`)
-     */
-    parseAsync(records, iterator, callback, json = true) {
-        each(records, (record, cb) => {
-            let innerCb = (err, result) => {
-                if(err) err = this._error(err, 'Error while iterating records', result || record);
-                return cb(err, result || record);
-            };
-            
-            let rec = this._decode(record.kinesis.data);
-            if(rec._isError) return innerCb(rec);
-            
-            if(!json || !rec) return iterator(rec, innerCb);
-            
-            let jsonData = this._toJSON(rec);
-            if(jsonData._isError) return innerCb(rec);
-            
-            iterator(jsonData, innerCb);
-        }, callback);
     }
     
     /**
