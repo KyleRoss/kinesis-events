@@ -19,14 +19,21 @@ class KinesisEvents extends EventEmitter {
      * @return {Array}           The parsed events
      */
     parse(records, json = true) {
-        return records.map(record => {
+        if(records.Records) records = records.Records;
+        if(!Array.isArray(records)) records = [records];
+        
+        let parsed = records.map(record => {
             let rec = this._decode(record.kinesis.data);
-            if(!json || !rec || rec._isError) return rec;
+            if(!json || !rec) return rec;
             
             return this._toJSON(rec);
-        }).filter(rec => !!rec || !rec._isError);
-    }
-    
+        });
+        
+        return {
+            records: parsed.filter(rec => !!rec && !rec._isError),
+            failed: parsed.filter(rec => !rec || rec._isError),
+            total: records.length
+        };
     }
     
     /**
