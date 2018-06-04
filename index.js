@@ -1,6 +1,6 @@
 "use strict";
 const EventEmitter = require('events');
-const each = require('async-each');
+const parseJson = require('json-parse-better-errors');
 
 class KinesisEvents extends EventEmitter {
     /**
@@ -9,16 +9,6 @@ class KinesisEvents extends EventEmitter {
      */
     constructor() {
         super();
-        /**
-         * The number of failed parsed records
-         * @type {Number}
-         */
-        this.failed = 0;
-        /**
-         * Access to the uninstantiated KinesisEvents class
-         * @type {Class}
-         */
-        this.KinesisEvents = KinesisEvents;
     }
     
     /**
@@ -29,38 +19,21 @@ class KinesisEvents extends EventEmitter {
      * @return {Array}           The parsed events
      */
     parse(records, json = true) {
-        return records.map(record => {
+        if(records.Records) records = records.Records;
+        if(!Array.isArray(records)) records = [records];
+        
+        let parsed = records.map(record => {
             let rec = this._decode(record.kinesis.data);
-            if(!json || !rec || rec._isError) return rec;
+            if(!json || !rec) return rec;
             
             return this._toJSON(rec);
-        }).filter(rec => !!rec || !rec._isError);
-    }
-    
-    /**
-     * Async version of `parse()`
-     * @param  {Array}   records  Event data (records) to parse
-     * @param  {Function}   iterator Iterator function to call for each record
-     * @param  {Function} callback Callback function to call once complete
-     * @param  {Boolean}  json     Enable/disable JSON parsing for each event (default `true`)
-     */
-    parseAsync(records, iterator, callback, json = true) {
-        each(records, (record, cb) => {
-            let innerCb = (err, result) => {
-                if(err) err = this._error(err, 'Error while iterating records', result || record);
-                return cb(err, result || record);
-            };
-            
-            let rec = this._decode(record.kinesis.data);
-            if(rec._isError) return innerCb(rec);
-            
-            if(!json || !rec) return iterator(rec, innerCb);
-            
-            let jsonData = this._toJSON(rec);
-            if(jsonData._isError) return innerCb(rec);
-            
-            iterator(jsonData, innerCb);
-        }, callback);
+        });
+        
+        return {
+            records: parsed.filter(rec => !!rec && !rec._isError),
+            failed: parsed.filter(rec => !rec || rec._isError),
+            total: records.length
+        };
     }
     
     /**
@@ -70,8 +43,7 @@ class KinesisEvents extends EventEmitter {
      */
     _toJSON(data) {
         try {
-            let json = JSON.parse(data);
-            return json;
+            return parseJson(data);
         } catch(e) {
             return this._error(e, 'Unable to JSON parse event data', data);
         }
@@ -84,8 +56,7 @@ class KinesisEvents extends EventEmitter {
      */
     _decode(data) {
         try {
-            let decoded = new Buffer(data, 'base64').toString('utf8');
-            return decoded;
+            return new Buffer(data, 'base64').toString('utf8');
         } catch(e) {
             return this._error(e, 'Unable to decode event data', data);
         }
@@ -101,15 +72,11 @@ class KinesisEvents extends EventEmitter {
     _error(error, msg, data) {
         msg = msg || 'Error parsing kinesis event';
         
-        if(!error || typeof error === 'string')
-            error = new Error(error || msg);
-        
         error.message = `${msg} (${error.message})`;
         error.payload = data;
         error._isError = true;
         
-        this.failed += 1;
-        this.emit('error', error);
+        this.emit('parseError', error);
         
         return error;
     }
