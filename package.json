@@ -26,6 +26,9 @@
     "url": "https://github.com/KyleRoss/kinesis-events/issues"
   },
   "homepage": "https://github.com/KyleRoss/kinesis-events#readme",
+  "engines": {
+    "node": ">= 8"
+  },
   "dependencies": {
     "json-parse-better-errors": "^1.0.2"
   },
