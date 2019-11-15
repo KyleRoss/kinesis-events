@@ -1,14 +1,39 @@
 {
   "name": "kinesis-events",
-  "version": "2.0.0",
+  "version": "0.0.0-development",
   "description": "AWS Kinesis event parser and handler for Lambda consumers",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha"
+    "build": "npm run docs && npm run test",
+    "test": "./node_modules/.bin/mocha",
+    "test-coverage": "nyc --reporter html npm test",
+    "coveralls": "nyc --reporter=lcovonly npm test -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
+    "docs": "jsdoc2md > README.md",
+    "semantic-release": "semantic-release"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "jsdoc2md": {
+    "template": "build/README.hbs",
+    "files": [
+      "./index.js",
+      "./lib/*.js"
+    ],
+    "partial": [
+      "./build/sig-name.hbs",
+      "./build/sig-link-parent.hbs",
+      "./build/sig-link.hbs"
+    ],
+    "module-index-format": "none",
+    "global-index-format": "grouped",
+    "member-index-format": "list"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/KyleRoss/kinesis-events.git"
+    "url": "https://github.com/KyleRoss/kinesis-events.git"
   },
   "keywords": [
     "kinesis",
@@ -33,6 +58,15 @@
     "json-parse-better-errors": "^1.0.2"
   },
   "devDependencies": {
-    "mocha": "^5.2.0"
+    "@commitlint/cli": "^8.0.0",
+    "@commitlint/config-conventional": "^8.0.0",
+    "@semantic-release/changelog": "^3.0.4",
+    "@semantic-release/git": "^7.0.12",
+    "coveralls": "^3.0.4",
+    "husky": "^3.0.9",
+    "jsdoc-to-markdown": "^5.0.0",
+    "mocha": "^6.1.4",
+    "nyc": "^14.1.1",
+    "semantic-release": "^15.13.30"
   }
 }
