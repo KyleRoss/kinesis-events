@@ -1,0 +1,73 @@
+# kinesis-events
+[![npm](https://img.shields.io/npm/v/kinesis-events.svg?style=for-the-badge)](https://www.npmjs.com/package/kinesis-events) [![npm](https://img.shields.io/npm/dt/kinesis-events.svg?style=for-the-badge)](https://www.npmjs.com/package/kinesis-events) [![David](https://img.shields.io/david/KyleRoss/kinesis-events.svg?style=for-the-badge)](https://david-dm.org/KyleRoss/kinesis-events) [![Travis](https://img.shields.io/travis/KyleRoss/kinesis-events/master.svg?style=for-the-badge)](https://travis-ci.org/KyleRoss/kinesis-events) [![license](https://img.shields.io/github/license/KyleRoss/kinesis-events.svg?style=for-the-badge)](https://github.com/KyleRoss/kinesis-events/blob/master/LICENSE) [![Beerpay](https://img.shields.io/beerpay/KyleRoss/kinesis-events.svg?style=for-the-badge)](https://beerpay.io/KyleRoss/kinesis-events)
+
+AWS Kinesis event parser and handler for Lambda consumers. Ability to parse kinesis events with error handling and JSON support. Supports Node 8.10+ on AWS Lambda.
+
+---
+
+## Install
+```bash
+npm i --save kinesis-events
+```
+
+## Usage
+```js
+const kinesisEvents = require('kinesis-events');
+
+// Lambda function handler
+exports.handler = async event => {
+    // Parse the records
+    const result = kinesisEvents.parse(event);
+    
+    // Check for errors (optional)
+    if(result.hasErrors) {
+        console.error('There are errors while parsing, ending process...');
+        process.exit(1);
+    }
+    
+    result.records.forEach(record => {
+        //... iterate through the parsed records
+    });
+};
+```
+
+---
+
+# API Documentation
+{{#orphans ~}}
+{{>docs~}}
+{{/orphans~}}
+
+
+
+## Transform Function
+New in v3.0.0, there is now an option to pass in a transform function that will allow you to transform the record before it is added to the RecordSet. This allows custom functionality or business logic to be implemented at a higher level.
+
+The transform function takes 2 arguments, `record` and `index`. The function must return the transformed record in order for it to be added to the RecordSet. If the record is not returned from the function, it will be ignored.
+
+```js
+const { KinesisEvents } = require('kinesis-events');
+const kinesisEvents = new KinesisEvents({
+    transform: (record, index) => {
+        if(record.firstName && record.lastName) {
+            // example, remove record if data is missing
+            return null;
+        }
+        
+        record.someCustomProperty = 'some custom value';
+        return record;
+    }
+});
+```
+
+---
+
+## Tests
+Tests are written and provided as part of the module. It requires mocha to be installed which is included as a `devDependency`. You may run the tests by calling:
+
+```bash
+$ npm run test
+```
+
+## License
+MIT License. See [License](https://github.com/KyleRoss/kinesis-events/blob/master/LICENSE) in the repository.
