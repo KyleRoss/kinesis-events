@@ -1,85 +1,25 @@
 "use strict";
-const EventEmitter = require('events');
-const parseJson = require('json-parse-better-errors');
+/**
+ * @module kinesis-events
+ */
 
-class KinesisEvents extends EventEmitter {
-    /**
-     * Constructor for KinesisEvents
-     * @return {KinesisEvents} Instance of KinesisEvents
-     */
-    constructor() {
-        super();
-    }
-    
-    /**
-     * Parses records from Kinesis and returns a filtered array
-     * @public
-     * @param  {Array}   records Event data (records) to parse
-     * @param  {Boolean} json    Enable/disable JSON parsing for each event (default `true`)
-     * @return {Array}           The parsed events
-     */
-    parse(records, json = true) {
-        if(records.Records) records = records.Records;
-        if(!Array.isArray(records)) records = [records];
-        
-        let parsed = records.map(record => {
-            let rec = this._decode(record.kinesis.data);
-            if(!json || !rec) return rec;
-            
-            return this._toJSON(rec);
-        });
-        
-        return {
-            records: parsed.filter(rec => !!rec && !rec._isError),
-            failed: parsed.filter(rec => !rec || rec._isError),
-            total: records.length
-        };
-    }
-    
-    /**
-     * Converts string to JSON safely
-     * @param  {String} data String to parse to JSON
-     * @return {Mixed}       The parsed JSON or Error if failed
-     */
-    _toJSON(data) {
-        try {
-            return parseJson(data);
-        } catch(e) {
-            return this._error(e, 'Unable to JSON parse event data', data);
-        }
-    }
-    
-    /**
-     * Decodes compressed data into its original form safely
-     * @param  {String}       data  Data to decode
-     * @return {String|Error}       The decoded data or error if failed
-     */
-    _decode(data) {
-        try {
-            return new Buffer(data, 'base64').toString('utf8');
-        } catch(e) {
-            return this._error(e, 'Unable to decode event data', data);
-        }
-    }
-    
-    /**
-     * Compiles and emits an error
-     * @param  {Error}  error Error in which was thrown
-     * @param  {String} msg   Custom message to include in the error
-     * @param  {Mixed}  data  Data at the point of failure
-     * @return {Error}        The compiled error object
-     */
-    _error(error, msg, data) {
-        msg = msg || 'Error parsing kinesis event';
-        
-        error.message = `${msg} (${error.message})`;
-        error.payload = data;
-        error._isError = true;
-        
-        this.emit('parseError', error);
-        
-        return error;
-    }
-}
+const KinesisEvents = require('./lib/KinesisEvents');
 
-module.exports = new KinesisEvents();
+/**
+ * Instance of the [KinesisEvents](#kinesisevents) class which is exported when calling `require('kinesis-events')`.
+ * For more advanced usage, you may create a new instance of KinesisEvents (see example below).
+ * @type KinesisEvents
+ * @kind KinesisEvents Instance
+ * @alias module:kinesis-events
+ * 
+ * @example 
+ * const kinesisEvents = require('kinesis-events');
+ * 
+ * // Advanced usage
+ * const { KinesisEvents } = require('kinesis-events');
+ * const kinesisEvents = new KinesisEvents({
+ *     // options...
+ * });
+ */
+const kinesisEvents = new KinesisEvents();
+module.exports = kinesisEvents;
